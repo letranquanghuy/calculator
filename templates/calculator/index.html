@@ -1,87 +1,164 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
+
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- {% load static %}
     <link rel="stylesheet" href="{% static 'calculator\css\style.css' %}"> -->
     <link rel="stylesheet" href="\static\calculator\css\style.css">
-    <title>Calculator</title>
+
 </head>
+
 <body>
+
     <div class="wrapper">
-        <section class="screen">
+        <section class="screen" id="display">
             0
         </section>
+
         <section class="calc-buttons">
             <div class="calc-button-row">
-                <button class="calc-button double">
-                    C
-                </button>
-                <button class="calc-button">
-                    &larr;
-                </button>
-                <button class="calc-button">
-                    &divide;
-                </button>
+                <button id="btn-open-paren" class="calc-button" onclick="buttonClick('(')">(</button>
+                <button id="btn-percent" class="calc-button" onclick="buttonClick('%')">%</button>
+                <button id="btn-clear" class="calc-button" onclick="buttonClick('C')">C</button>
+                <button id="btn-backspace" class="calc-button" onclick="buttonClick('←')">&larr;</button>
+                <button id="btn-divide" class="calc-button" onclick="buttonClick('÷')">&divide;</button>
             </div>
-
+        
             <div class="calc-button-row">
-                <button class="calc-button">
-                    7
-                </button>
-                <button class="calc-button">
-                    8
-                </button>
-                <button class="calc-button">
-                    9
-                </button>
-                <button class="calc-button">
-                    &times;
-                </button>
+                <button id="btn-close-paren" class="calc-button" onclick="buttonClick(')')">)</button>
+                <button id="btn-7" class="calc-button" onclick="buttonClick('7')">7</button>
+                <button id="btn-8" class="calc-button" onclick="buttonClick('8')">8</button>
+                <button id="btn-9" class="calc-button" onclick="buttonClick('9')">9</button>
+                <button id="btn-multiply" class="calc-button" onclick="buttonClick('x')">&times;</button>
             </div>
-
+        
             <div class="calc-button-row">
-                <button class="calc-button">
-                    4
-                </button>
-                <button class="calc-button">
-                    5
-                </button>
-                <button class="calc-button">
-                    6
-                </button>
-                <button class="calc-button">
-                    &minus;
-                </button>
+                <button id="btn-sqrt" class="calc-button" onclick="buttonClick('√')">√</button>
+                <button id="btn-4" class="calc-button" onclick="buttonClick('4')">4</button>
+                <button id="btn-5" class="calc-button" onclick="buttonClick('5')">5</button>
+                <button id="btn-6" class="calc-button" onclick="buttonClick('6')">6</button>
+                <button id="btn-minus" class="calc-button" onclick="buttonClick('-')">&minus;</button>
             </div>
-
+        
             <div class="calc-button-row">
-                <button class="calc-button">
-                    1
-                </button>
-                <button class="calc-button">
-                    2
-                </button>
-                <button class="calc-button">
-                    3
-                </button>
-                <button class="calc-button">
-                    &plus;
-                </button>
+                <button id="btn-factorial" class="calc-button" onclick="buttonClick('!')">x!</button>
+                <button id="btn-1" class="calc-button" onclick="buttonClick('1')">1</button>
+                <button id="btn-2" class="calc-button" onclick="buttonClick('2')">2</button>
+                <button id="btn-3" class="calc-button" onclick="buttonClick('3')">3</button>
+                <button id="btn-plus" class="calc-button" onclick="buttonClick('+')">&plus;</button>
             </div>
-
+        
             <div class="calc-button-row">
-                <button class="calc-button triple">
-                    0
-                </button>
-                <button class="calc-button">
-                    &equals;
-                </button>
+                <button id="btn-power" class="calc-button" onclick="buttonClick('^')">x<sup>y</sup></button>
+                <button id="btn-pi" class="calc-button" onclick="buttonClick('π')">π</button>
+                <button id="btn-0" class="calc-button" onclick="buttonClick('0')">0</button>
+                <button id="btn-dot" class="calc-button" onclick="buttonClick('.')">.</button>
+                <button id="btn-equals" class="calc-button" onclick="buttonClick('=')">&equals;</button>
             </div>
-
-            
         </section>
     </div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script>
+        document.addEventListener('keydown', function(event){
+            const key = event.key;
+            switch (key) {
+                case '0': document.getElementById('btn-0').click(); break;
+                case '1': document.getElementById('btn-1').click(); break;
+                case '2': document.getElementById('btn-2').click(); break;
+                case '3': document.getElementById('btn-3').click(); break;
+                case '4': document.getElementById('btn-4').click(); break;
+                case '5': document.getElementById('btn-5').click(); break;
+                case '6': document.getElementById('btn-6').click(); break;
+                case '7': document.getElementById('btn-7').click(); break;
+                case '8': document.getElementById('btn-8').click(); break;
+                case '9': document.getElementById('btn-9').click(); break;
+                case '+': document.getElementById('btn-plus').click(); break;
+                case '-': document.getElementById('btn-minus').click(); break;
+                case '*': document.getElementById('btn-multiply').click(); break;
+                case '/': document.getElementById('btn-divide').click(); break;
+                case 'Enter': document.getElementById('btn-equals').click(); break;
+                case 'Backspace': document.getElementById('btn-backspace').click(); break;
+                case 'Delete': document.getElementById('btn-clear').click(); break;
+                case '(': document.getElementById('btn-open-paren').click(); break;
+                case ')': document.getElementById('btn-close-paren').click(); break;
+                case '.': document.getElementById('btn-dot').click(); break;
+                case '%': document.getElementById('btn-percent').click(); break;
+                case '^': document.getElementById('btn-power').click(); break;
+                case '!': document.getElementById('btn-factorial').click(); break;
+                case 'p': document.getElementById('btn-pi').click(); break;
+                case 's': document.getElementById('btn-sqrt').click(); break;
+                default: break;
+            }
+        })
+    </script>
+
+    <script>
+        let buffer = "0";
+        let expression = "";
+        let previousOperator = null;
+        let operatorInMemory = null;
+
+        const screen = document.querySelector('#display');
+
+        function buttonClick(value) {
+            if (expression == "ERROR" || expression == "INFINITY") {
+                expression = "";
+            }
+
+            if (isNaN(value)) {
+                handleSymbol(value);
+            } else {
+                if (expression == "0") {
+                    expression = ""
+                } 
+                expression += value;
+            }
+            screen.innerText = expression || "0";
+        }
+
+        function handleSymbol(symbol) {
+            switch (symbol) {
+                case 'C':
+                    expression = "";
+                    break;
+                case '←':
+                    expression = expression.slice(0, -1);
+                    // if (expression.length > 1) {
+                    //     expression = expression.slice(0, -1);
+                    // } else {
+                    //     expression = '';
+                    // }
+                    break;
+                case '=':
+                    calculateResult()
+                    break;
+                default:
+                    expression += symbol;
+            }
+        }
+
+        function calculateResult() {
+            var formData = new FormData();
+            formData.append("expression", expression);
+            formData.append("csrfmiddlewaretoken", '{{ csrf_token }}');
+            $.ajax({ 
+            type: "POST",
+            url: "/calculate-result",
+            contentType: false,
+            processData: false,
+            data: formData,
+            success: function (result) {
+                console.log("Hello")
+                console.log(result['result'])
+                expression = result['result']
+                screen.innerText = result['result'] || "0";
+            }
+            });
+        }
+    </script>
 </body>
+
 </html>
