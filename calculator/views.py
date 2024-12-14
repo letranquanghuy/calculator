@@ -10,6 +10,7 @@ def index(request):
     return render(request, "calculator\index.html")
 
 def preprocess_expression(expression):
+    expression = expression.replace("x", "*").replace("÷", "/").replace("%", "/100")
     expression = remove_leading_zeros(expression)
     expression = process_square_root(expression)
     expression = process_factorial(expression)
@@ -58,7 +59,6 @@ def evaluate_expression(expression):
 @require_POST
 def calculate_result(request):
     expression = request.POST["expression"]
-    expression = expression.replace("x", "*").replace("÷", "/").replace("%", "/100")
     expression = preprocess_expression(expression)
     try:
         print(expression)

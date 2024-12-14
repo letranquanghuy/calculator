@@ -126,11 +126,6 @@
                     break;
                 case '←':
                     expression = expression.slice(0, -1);
-                    // if (expression.length > 1) {
-                    //     expression = expression.slice(0, -1);
-                    // } else {
-                    //     expression = '';
-                    // }
                     break;
                 case '=':
                     calculateResult()
@@ -151,8 +146,6 @@
             processData: false,
             data: formData,
             success: function (result) {
-                console.log("Hello")
-                console.log(result['result'])
                 expression = result['result']
                 screen.innerText = result['result'] || "0";
             }
