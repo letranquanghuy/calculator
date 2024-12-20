@@ -20,7 +20,7 @@
         <section class="calc-buttons">
             <div class="calc-button-row">
                 <button id="btn-open-paren" class="calc-button" onclick="buttonClick('(')">(</button>
-                <button id="btn-percent" class="calc-button" onclick="buttonClick('%')">%</button>
+                <button id="btn-percent" class="calc-button" onclick="buttonClick('/100')">%</button>
                 <button id="btn-clear" class="calc-button" onclick="buttonClick('C')">C</button>
                 <button id="btn-backspace" class="calc-button" onclick="buttonClick('←')">&larr;</button>
                 <button id="btn-divide" class="calc-button" onclick="buttonClick('÷')">&divide;</button>
@@ -35,7 +35,7 @@
             </div>
         
             <div class="calc-button-row">
-                <button id="btn-sqrt" class="calc-button" onclick="buttonClick('√')">√</button>
+                <button id="btn-sqrt" class="calc-button" onclick="buttonClick('√(')">√</button>
                 <button id="btn-4" class="calc-button" onclick="buttonClick('4')">4</button>
                 <button id="btn-5" class="calc-button" onclick="buttonClick('5')">5</button>
                 <button id="btn-6" class="calc-button" onclick="buttonClick('6')">6</button>
@@ -100,12 +100,20 @@
         let expression = "";
         let previousOperator = null;
         let operatorInMemory = null;
+        let isCalculated = false;
 
         const screen = document.querySelector('#display');
 
         function buttonClick(value) {
             if (expression == "ERROR" || expression == "INFINITY") {
                 expression = "";
+            }
+
+            if (isCalculated) {
+                if (!isNaN(value)) {
+                    expression = ""
+                }
+                isCalculated = false;
             }
 
             if (isNaN(value)) {
@@ -148,6 +156,7 @@
             success: function (result) {
                 expression = result['result']
                 screen.innerText = result['result'] || "0";
+                isCalculated = true;
             }
             });
         }
