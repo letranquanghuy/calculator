@@ -5,7 +5,8 @@ from django.http import HttpResponse, JsonResponse
 from django.views.decorators.http import require_POST
 import math
 from math import sqrt, factorial, pi
-
+import sys
+# sys.set_int_max_str_digits(0)
 # Create your views here.
 def index(request):
     return render(request, r"calculator\index.html")
@@ -23,21 +24,38 @@ def preprocess_expression(expression):
         return "ERROR"
     
     expression = apply_basic_transformations(expression)
-    expression = remove_leading_zeros(expression)
+    expression = normalize_number(expression)
+    expression = replace_scientific_notation(expression)
     expression = process_factorial(expression)
     expression = process_pi(expression)
     expression = process_parenthesis(expression)
-
+    if not validate_balance_parenthese(expression):
+        return "ERROR"
     return expression
+
+
+def replace_scientific_notation(expression):
+    # Match scientific notation in the form of e-n where n is a number
+    return re.sub(r'e-(\d+)', r'*10**(-\1)', expression)
+
+def validate_balance_parenthese(expression):
+    stack = []
+    for char in expression:
+        if char == "(":
+            stack.append(char)
+        elif char == ")":
+            if not stack:
+                return False
+            stack.pop()
+    return not stack
 
 def apply_basic_transformations(expression):
     """Apply basic symbol transformations for mathematical expressions."""
     transformations = [
         ("x", "*"),
         ("÷", "/"),
-        ("%", "/100"),
         ("√", "sqrt"),
-        ("^", "**")  # Handles power
+        ("^", "**")
     ]
     for old, new in transformations:
         expression = expression.replace(old, new)
@@ -64,59 +82,121 @@ def process_pi(expression):
     """Replace pi symbol with pi."""
     return expression.replace("π", "(pi)")
 
-def remove_leading_zeros(expression):
-    """Remove unnecessary leading zeros from numbers."""
-    return re.sub(r"\b0+(\d)", r"\1", expression)
+def normalize_number(expression):
+    def normalize_match(match):
+        if '.' not in match.group():
+            return str(int(match.group()))
+        return str(float(match.group()))
+
+    normalized_expression = re.sub(r'(\d+(\.\d+)?e[+-]?\d+)', lambda match: f"({match.group()})", expression)
+    normalized_expression = re.sub(r'(?<!\w)(0+)?\d+(\.\d+)?(?!\w)', normalize_match, normalized_expression)
+    return normalized_expression
+
+
+def is_number(s):
+    try:
+        float(s)
+        return True
+    except ValueError:
+        return False
 
 def evaluate_expression(expression):
     result = eval(expression)
     if isinstance(result, float):
         result = round(result, 10)
-    if result == int(result):
-        result = int(result)
-    return result
-
-def cal_eval(expression):
-    result = eval(expression)
     if result.is_integer():
         result = int(result)
     return str(result)
 
-def calculate(expression, start=0):
-    sub_expression = ""
-    i = start
-    while i < len(expression):
-        if expression[i] == ")":
-            return cal_eval(sub_expression), i
-        if expression[i] == "(":
-            is_sqrt = expression[i-4: i] == "sqrt"
-            result, i = calculate(expression, start=i+1)
-            if i < (len(expression)-1) and expression[i+1] == "!":
-                if is_sqrt:
-                    sub_expression = sub_expression[:-4] + "factorial"
-                    result = cal_eval(f"sqrt({result})")
-                else:
-                    sub_expression += "factorial"
-                sub_expression += "("
-                sub_expression += result
-                sub_expression += ")"
+def replace_match_with_evaluation(match):
+    expression = match.group(0)
+    return evaluate_expression(expression)
 
-                i += 2
-                continue
-            sub_expression += "("
-            sub_expression += result
-        sub_expression += expression[i]
-        i += 1
-    
-    return cal_eval(sub_expression)
+def replace_factorial(match):
+    if match.group(1):
+        num = match.group(1)
+        return f"factorial({num})"
+
+    if match.group(3):
+        expression = match.group(3)
+        return f"factorial({expression})"
+
+def calculate(expression):
+    i = 0
+    old_expression = None
+    while not is_number(expression):
+        if old_expression == expression:
+            expression = "ERROR"
+            break
+        old_expression = expression
+        # calculate the expression inside parentheses
+        expression = re.sub(r"(?<!\w)(\(([-+*/\d.\s]+)\))", replace_match_with_evaluation, expression)
+        # calculate the function
+        expression = re.sub(r"\b[a-zA-Z_]+\(([-+*/\d.\s]+)\)", replace_match_with_evaluation, expression)
+        # process factorial
+        expression = re.sub(r"(\d+(\.\d+)?)!|(\(([-+*/\d.\s]+)\))!", replace_factorial, expression)
+        print(f"after factorial: {expression}")
+        if "(" not in expression and ")" not in expression:
+            expression = evaluate_expression(expression)
+    return expression
+
 @require_POST
 def calculate_result(request):
     expression = request.POST["expression"]
+    print("pre_expression", expression)
     expression = preprocess_expression(expression)
     try:
         print("expression", expression)
         result = calculate(expression)
-    except ZeroDivisionError:
+    except ZeroDivisionError and OverflowError:
         result = "INFINITY"
+    except ValueError as e:
+        if "Exceeds the limit" in str(e):
+            result = "INFINITY"
+        else:
+            result = "ERROR"
+    except Exception:
+        result = "ERROR"
+
+    return JsonResponse({'result': str(result)}, status=200)
+
+@require_POST
+def handle_percentage(request):
+    expression = request.POST["expression"]
+    sub_expression = ""
+    last_index = 0
+    first_open = None
+    stack = []
+
+    if expression[-1] != ")":
+        result = re.sub(
+            r'(\d+(\.\d+)?(e[+-]?\d+)?)%', 
+            lambda match: calculate(preprocess_expression(match.group(1)+"/100")), 
+            expression + "%"
+        )
+        if "%" in result:
+            result = expression
+        if result == "π":
+            result = pi/100
+    else:
+        for i in range(len(expression) - 1, -1, -1):
+            last_index = i
+            if expression[i] == ")":
+                stack.append(expression[i])
+            elif expression[i] == "(":
+                stack.pop()
+                if first_open is None:
+                    first_open = i
+            sub_expression = expression[i] + sub_expression
+            if not stack:
+                if expression[i-1] == "√":
+                    sub_expression = "√" + sub_expression
+                    last_index = i - 1
+                break
+        if stack:
+            result = expression[:first_open] + "ERROR"
+        else:
+            print(sub_expression)
+            result =expression[:last_index] + calculate(preprocess_expression(sub_expression)+'/100')
 
     return JsonResponse({'result': str(result)}, status=200)

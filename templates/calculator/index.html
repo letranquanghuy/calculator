@@ -20,7 +20,7 @@
         <section class="calc-buttons">
             <div class="calc-button-row">
                 <button id="btn-open-paren" class="calc-button" onclick="buttonClick('(')">(</button>
-                <button id="btn-percent" class="calc-button" onclick="buttonClick('/100')">%</button>
+                <button id="btn-percent" class="calc-button" onclick="handlePercentage()">%</button>
                 <button id="btn-clear" class="calc-button" onclick="buttonClick('C')">C</button>
                 <button id="btn-backspace" class="calc-button" onclick="buttonClick('←')">&larr;</button>
                 <button id="btn-divide" class="calc-button" onclick="buttonClick('÷')">&divide;</button>
@@ -141,6 +141,24 @@
                 default:
                     expression += symbol;
             }
+        }
+
+        function handlePercentage() {
+            var formData = new FormData();
+            formData.append("expression", expression);
+            formData.append("csrfmiddlewaretoken", '{{ csrf_token }}');
+            $.ajax({ 
+            type: "POST",
+            url: "/handle-percentage",
+            contentType: false,
+            processData: false,
+            data: formData,
+            success: function (result) {
+                expression = result['result']
+                screen.innerText = result['result'] || "0";
+                isCalculated = true;
+            }
+            });
         }
 
         function calculateResult() {
