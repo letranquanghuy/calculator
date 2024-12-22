@@ -6,10 +6,13 @@ from django.views.decorators.http import require_POST
 import math
 from math import sqrt, factorial, pi
 import sys
+
+from calculator.models import CalculationHistory
 # sys.set_int_max_str_digits(0)
 # Create your views here.
 def index(request):
-    return render(request, r"calculator\index.html")
+    history = CalculationHistory.objects.all()
+    return render(request, r"calculator\index.html", {'history': history})
 
 
 def preprocess_expression(expression):
@@ -80,7 +83,7 @@ def process_parenthesis(expression):
 
 def process_pi(expression):
     """Replace pi symbol with pi."""
-    return expression.replace("π", "(pi)")
+    return expression.replace("π", f"({pi})")
 
 def normalize_number(expression):
     def normalize_match(match):
@@ -138,16 +141,21 @@ def calculate(expression):
         print(f"after factorial: {expression}")
         if "(" not in expression and ")" not in expression:
             expression = evaluate_expression(expression)
+    else:
+        expression = evaluate_expression(expression)
     return expression
 
 @require_POST
 def calculate_result(request):
     expression = request.POST["expression"]
+    original_expression = expression
     print("pre_expression", expression)
     expression = preprocess_expression(expression)
     try:
         print("expression", expression)
         result = calculate(expression)
+        history_entry = CalculationHistory(expression=original_expression, result=str(result))
+        history_entry.save()
     except ZeroDivisionError and OverflowError:
         result = "INFINITY"
     except ValueError as e:
@@ -200,3 +208,12 @@ def handle_percentage(request):
             result =expression[:last_index] + calculate(preprocess_expression(sub_expression)+'/100')
 
     return JsonResponse({'result': str(result)}, status=200)
+
+@require_POST
+def clear_history(request):
+    try:
+        # Assuming the history is stored in a model called History
+        CalculationHistory.objects.all().delete()  # Delete all history records
+        return JsonResponse({'status': 'success'}, status=200)
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=400)

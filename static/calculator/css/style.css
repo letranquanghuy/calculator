@@ -21,6 +21,99 @@ body{
     justify-content: center;
 }
 
+.calculator-container {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px; /* Adjust space between calculator and history */
+}
+
+.history{
+    border-radius: 16px;
+    box-shadow: 0 4px 30px rgba(35, 35, 35, 0.1);
+    color: #232323;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    background: rgba(255, 255, 255, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.34);
+    flex-basis: 500px;
+    /* padding: 10px; */
+    width: 200px;
+}
+
+.history-table{
+    height: 500px;
+    overflow-y: auto;   /* Enable vertical scrolling if content overflows */
+    overflow-x: hidden;
+}
+.history-table::-webkit-scrollbar {
+    display: none;
+}
+
+
+.history-section{
+    background: rgba(255, 255, 255, 0);
+    color: #000000;
+    font-size: 20px;
+    overflow: auto;
+    padding: 10px;
+    text-align: right;
+    width: 200px;
+    cursor: pointer;
+
+}
+
+/* Hover Effect */
+.history-section:hover {
+    background: rgba(255, 255, 255, 0.3); /* Change to a slightly opaque white background */
+    box-shadow: 0 4px 30px rgba(35, 35, 35, 0.1); /* Add a shadow on hover */
+}
+
+/* Click Effect */
+.history-section:active {
+    background: rgba(255, 255, 255, 0.5);  /* Change background to a more solid color on click */
+    box-shadow: 0 4px 30px rgba(35, 35, 35, 0.2); /* Increase shadow intensity when clicked */
+}
+#history-header {
+    position: sticky; 
+    top: 0;         
+    z-index: 10;       
+    color: #232323;
+    font-size: 15px;
+    width: auto;
+    border-radius: 16px 16px 0 0;
+    padding: 10px;
+    width: 200px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#clear-all-btn {
+    margin-left: 10px;
+    cursor: pointer;
+    border-radius: 16px;
+    box-shadow: 0 4px 30px rgba(35, 35, 35, 0.1);
+    color: #232323;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    background: rgba(255, 255, 255, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.34);
+    padding: 5px;
+
+}
+
+/* Hover Effect */
+#clear-all-btn:hover {
+    background: rgba(255, 255, 255, 0.3); /* Change to a slightly opaque white background */
+    box-shadow: 0 4px 30px rgba(35, 35, 35, 0.1); /* Add a shadow on hover */
+}
+
+/* Click Effect */
+#clear-all-btn:active {
+    background: rgba(255, 255, 255, 0.5);  /* Change background to a more solid color on click */
+    box-shadow: 0 4px 30px rgba(35, 35, 35, 0.2); /* Increase shadow intensity when clicked */
+}
+
 .wrapper{
     border-radius: 16px;
     box-shadow: 0 4px 30px rgba(35, 35, 35, 0.1);
@@ -45,10 +138,16 @@ body{
     font-size: 35px;
     overflow: auto;
     padding: 20px;
-    text-align: right;
+    text-align: left;
     width: 426px;
 }
-
+.screen:active {
+    background: rgba(255, 255, 255, 0.5);  /* Change background to a more solid color on click */
+    box-shadow: 0 4px 30px rgba(35, 35, 35, 0.2); /* Increase shadow intensity when clicked */
+}
+.screen::-webkit-scrollbar {
+    display: none;
+}
 .calc-button-row{
     display: flex;
     justify-content: space-between;
