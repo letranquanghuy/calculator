@@ -201,6 +201,30 @@ def calculate(expression):
 
 @require_POST
 def calculate_result(request):
+    """
+    Calculate the result of a mathematical expression and store it in the database if it is unique.
+
+    This function processes a POST request containing a mathematical expression, evaluates the expression,
+    and returns the result as a JSON response. If the result is unique (i.e., different from the last entry
+    in the database), it is stored in the database.
+
+    Args:
+        request (HttpRequest): The HTTP request object containing the POST data.
+
+    Returns:
+        JsonResponse: A JSON response containing the result of the calculation and a flag indicating
+                      whether the result was recorded in the database.
+
+    Raises:
+        ZeroDivisionError: If the expression involves division by zero.
+        OverflowError: If the expression results in an overflow.
+        ValueError: If the expression exceeds the limit or is otherwise invalid.
+        Exception: For any other exceptions that may occur during evaluation.
+
+    Example:
+        If the input expression is "2 + 2", the output will be {"result": "4", "record": True}.
+        If the input expression is "1 / 0", the output will be {"result": "INFINITY", "record": False}.
+    """
     record = False
     expression = request.POST["expression"]
     if not expression:
@@ -237,6 +261,23 @@ def calculate_result(request):
 
 @require_POST
 def handle_percentage(request):
+    """
+    Handle percentage calculations in the given mathematical expression.
+
+    This function processes a POST request containing a mathematical expression
+    and calculates the percentage value. It handles both inline percentages (e.g., "50%")
+    and percentages within parentheses (e.g., "(50)%"). The result is returned as a JSON response.
+
+    Args:
+        request (HttpRequest): The HTTP request object containing the POST data.
+
+    Returns:
+        JsonResponse: A JSON response containing the result of the percentage calculation.
+
+    Example:
+        If the input expression is "50%", the output will be "0.5".
+        If the input expression is "100 + (50)%", the output will be "100 + 0.5".
+    """
     expression = request.POST["expression"]
     sub_expression = ""
     last_index = 0
@@ -292,9 +333,22 @@ def handle_percentage(request):
 
 @require_POST
 def clear_history(request):
+    """
+    Clear all calculation history records from the database.
+
+    This function processes a POST request to delete all records from the CalculationHistory model.
+    It returns a JSON response indicating the success or failure of the operation.
+
+    Args:
+        request (HttpRequest): The HTTP request object containing the POST data.
+
+    Returns:
+        JsonResponse: A JSON response containing the status of the operation.
+                      - If successful, returns {"status": "success"} with a 200 status code.
+                      - If an error occurs, returns {"status": "error", "message": str(e)} with a 400 status code.
+    """
     try:
-        # Assuming the history is stored in a model called History
-        CalculationHistory.objects.all().delete()  # Delete all history records
+        CalculationHistory.objects.all().delete()
         return JsonResponse({"status": "success"}, status=200)
     except Exception as e:
         return JsonResponse({"status": "error", "message": str(e)}, status=400)

@@ -7,6 +7,4 @@ urlpatterns = [
     path("calculate-result", views.calculate_result, name="calculate_result"),
     path("handle-percentage", views.handle_percentage, name="handle_percentage"),
     path("clear-history", views.clear_history, name="clear_history"),
-
-    
 ]

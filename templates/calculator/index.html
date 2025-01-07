@@ -226,7 +226,13 @@
                     }
                     break
                 default:
-                    if (["+", "-", "x", "÷", ".", "^", "!"].includes(symbol)) {
+                    if (symbol === "-" && expression === "") {
+                        expression += symbol;
+                        break;
+                    }
+
+                    const operators = ["+", "-", "x", "÷", ".", "^", "!"];
+                    if (operators.includes(symbol)) {
                         if (expression==""){
                             expression = "0";
                         }
@@ -252,8 +258,6 @@
                         }
                     }
                     expression += symbol;
-
-
             }
         }
 
